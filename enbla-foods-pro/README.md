@@ -1,16 +1,22 @@
-# React + Vite
+# Enbla Foods - Professional Food Delivery Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A high-performance, responsive food delivery interface built with **React** and **Tailwind CSS**. This project demonstrates industry-standard practices in state management and modular architecture.
 
-Currently, two official plugins are available:
+## 🚀 Key Professional Features
+- **Modular Component Architecture**: Separated Logic (Hooks), UI (Components), and Data (Constants).
+- **Persistent Cart Engine**: Utilizes `LocalStorage` to maintain user selections across sessions without requiring a database hit.
+- **Dynamic Localization**: Full support for English and Amharic toggling using a centralized translation dictionary.
+- **Independent Scroll Layout**: Advanced CSS/Tailwind layout allowing independent scrolling of menu and cart while keeping navigation fixed.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠 Tech Stack
+- **Frontend**: React.js
+- **Styling**: Tailwind CSS (Utility-first approach)
+- **State**: Custom React Hooks (`useCart`)
+- **Icons**: Lucide-React / Heroicons
 
-## React Compiler
+## 🧠 Engineering Decisions
+### Why LocalStorage?
+I implemented `LocalStorage` to enhance User Experience (UX). It allows guest users to build a cart instantly without the latency of a database call or the friction of a login screen.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Independent Scrolling
+To ensure a "Desktop App" feel, I utilized `flex-1 overflow-y-auto` combined with `h-screen`. This prevents the entire page from scrolling and keeps the professional sidebar and total calculations pinned.
