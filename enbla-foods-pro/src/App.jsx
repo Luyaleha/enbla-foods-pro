@@ -6,11 +6,13 @@ import { MENU_DATA, CATEGORIES } from './constants/menuData';
 import { useCart } from './hooks/useCart';
 
 function App() {
+  
   const [lang, setLang] = useState('en');
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   
-  const { cart, addToCart, total } = useCart();
+  // Check this line!
+const { cart, addToCart, removeFromCart, total, clearCart } = useCart();
   const t = translations[lang];
 
   const filteredMenu = MENU_DATA.filter(item => {
@@ -82,42 +84,57 @@ function App() {
 
           {/* 4. CART COLUMN: Fixed width, but internal content scrolls */}
           <aside className="hidden xl:flex w-[400px] bg-white border-l border-gray-100 flex-col shrink-0 overflow-hidden">
-            <div className="p-10 pb-4 shrink-0">
-              <h2 className="text-3xl font-black">{t.cart}</h2>
-            </div>
-            
-            {/* SCROLLABLE LIST OF ITEMS */}
-            <div className="flex-1 overflow-y-auto px-10 space-y-4">
-              {cart.length > 0 ? (
-                cart.map((item, index) => (
-                  <div key={index} className="flex justify-between items-center bg-gray-50 p-4 rounded-2xl">
-                    <div>
-                      <p className="font-bold text-gray-900">{item.name}</p>
-                      <p className="text-sm text-orange-600 font-bold">x{item.quantity}</p>
-                    </div>
-                    <span className="font-black text-gray-900">{(item.price * item.quantity)} ETB</span>
-                  </div>
-                ))
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full opacity-30 text-center">
-                  <div className="text-7xl mb-4">🛒</div>
-                  <p className="font-bold text-lg">{t.empty}</p>
-                </div>
-              )}
-            </div>
-
-            {/* TOTAL SECTION: Pinned to the bottom of the aside */}
-            <div className="p-10 pt-6 border-t border-gray-100 bg-white shrink-0">
-              <div className="flex justify-between items-center mb-8">
-                <span className="text-gray-400 font-bold">Total</span>
-                <span className="text-2xl font-black text-gray-900">{total} ETB</span>
-              </div>
-              <button className="w-full py-6 bg-orange-600 text-white rounded-[28px] font-black text-xl shadow-2xl hover:bg-orange-700 transition-all">
-                {t.checkout}
-              </button>
-            </div>
-          </aside>
+  {/* HEADER */}
+  <div className="p-10 pb-4 shrink-0">
+    <h2 className="text-3xl font-black">{t.cart}</h2>
+  </div>
+  
+  {/* ONE SINGLE SCROLLABLE LIST */}
+  <div className="flex-1 overflow-y-auto px-10 space-y-4 scrollbar-hide">
+    {cart.length > 0 ? (
+      cart.map((item) => (
+        <div 
+          key={item.id} 
+          className="flex justify-between items-center bg-gray-50 p-4 rounded-2xl group transition-all hover:bg-white hover:shadow-md border border-transparent hover:border-orange-100"
+        >
+          <div className="flex-1">
+            <p className="font-bold text-gray-900 text-lg">{item.name}</p>
+            <p className="text-sm text-orange-600 font-bold">
+              x{item.quantity} — {item.price * item.quantity} <small>ETB</small>
+            </p>
+          </div>
+          
+          {/* Professional Delete Button - Appears on Hover */}
+          <button 
+            onClick={() => removeFromCart(item.id)}
+            className="ml-4 p-2 text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+            title="Remove item"
+          >
+            ✕
+          </button>
         </div>
+      ))
+    ) : (
+      /* Professional Empty State - Only shows when cart is empty */
+      <div className="flex flex-col items-center justify-center h-full opacity-30 text-center py-10">
+        <div className="text-7xl mb-4">🛒</div>
+        <p className="font-bold text-xl text-gray-400 uppercase tracking-widest">{t.empty}</p>
+        <p className="text-sm mt-2">Ready for a delicious order?</p>
+      </div>
+    )}
+  </div>
+
+  {/* TOTAL SECTION: Pinned to bottom */}
+  <div className="p-10 pt-6 border-t border-gray-100 bg-white shrink-0">
+    <div className="flex justify-between items-center mb-8">
+      <span className="text-gray-400 font-bold uppercase tracking-widest text-sm">Total</span>
+      <span className="text-3xl font-black text-gray-900">{total} <small className="text-sm">ETB</small></span>
+    </div>
+    <button className="w-full py-6 bg-orange-600 text-white rounded-[28px] font-black text-xl shadow-2xl hover:bg-orange-700 active:scale-95 transition-all">
+      {t.checkout}
+    </button>
+  </div>
+</aside>        </div>
       </div>
     </div>
   );

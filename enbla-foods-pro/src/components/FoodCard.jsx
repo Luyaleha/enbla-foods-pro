@@ -13,6 +13,7 @@ export default function FoodCard({ food, onAdd }) {
         >
           +
         </button>
+        
       </div>
     </div>
   );
