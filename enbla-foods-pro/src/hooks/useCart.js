@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 export const useCart = () => {
-  // LOAD: This function runs ONLY ONCE when the app starts
+  
   const [cart, setCart] = useState(() => {
     try {
       const savedCart = localStorage.getItem('enbla_cart');
@@ -15,7 +15,7 @@ export const useCart = () => {
     return []; // Return empty array if nothing found
   });
 
-  // SAVE: This runs every time the 'cart' variable changes
+  
   useEffect(() => {
     localStorage.setItem('enbla_cart', JSON.stringify(cart));
     console.log("Cart saved to LocalStorage");
@@ -40,9 +40,10 @@ export const useCart = () => {
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   return { cart, addToCart, removeFromCart, total };
-  const clearCart = () => {
+ const clearCart = () => {
   setCart([]);
+  console.log("Clear All button was clicked!")
+  localStorage.removeItem('enbla_cart');
 };
-// Then add it to your return statement:
 return { cart, addToCart, removeFromCart, clearCart, total };
 };
