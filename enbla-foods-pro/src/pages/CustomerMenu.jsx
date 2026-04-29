@@ -4,6 +4,7 @@ import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp } from 
 import { db } from '../services/firebase'; 
 import Sidebar from '../components/Sidebar';
 import FoodCard from '../components/FoodCard';
+import CheckoutModal from '../components/CheckoutModal'; // CHANGE 1: Import Modal
 import { translations } from '../translations';
 import { CATEGORIES } from '../constants/menuData'; 
 import { useCart } from '../hooks/useCart';
@@ -13,66 +14,57 @@ function CustomerMenu() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false); // CHANGE 2: Modal visibility state
   
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false); // Track order status
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { cart, addToCart, removeFromCart, total, clearCart } = useCart();
   const t = translations[lang];
 
   useEffect(() => {
     const q = query(collection(db, "products"), orderBy("name", "asc"));
-
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const items = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-
-      if (items.length === 0) {
-        console.log("Database empty. Use seedDatabase() if needed.");
-      }
-
       setMenuItems(items);
       setLoading(false);
     }, (error) => {
       console.error("Firebase Error:", error);
       setLoading(false);
     });
-
     return () => unsubscribe(); 
   }, []);
 
-  const handleCheckout = async () => {
+  // CHANGE 3: Logic now accepts customerData from the Modal
+  const handleCheckout = async (customerData) => {
     if (isSubmitting || cart.length === 0) return;
     
     setIsSubmitting(true);
-    
     try {
       const orderData = {
         items: cart,
         totalAmount: total,
+        customer: customerData, // Attached user info (Name/Phone)
         status: 'pending',
         createdAt: serverTimestamp(),
       };
 
-      // 1. Wait for Firestore to finish
       const docRef = await addDoc(collection(db, "orders"), orderData);
       
-      // 2. SUCCESS PATH: 
       if (docRef.id) {
-        alert(`Order Successful! ID: ${docRef.id}`);
+        setShowCheckout(false); // Close Modal
         clearCart();
         setIsCartOpen(false);
+        alert(`Order Successful, ${customerData.name}! We will call you at ${customerData.phone}.`);
       }
-
     } catch (error) {
-      // 3. ERROR PATH: Only runs if the 'addDoc' fails
       console.error("Order Failed:", error);
-      alert("Failed to place order. Check your internet or Firebase Rules.");
+      alert("Failed to place order. Check your internet.");
     } finally {
-      // 4. CLEANUP: Always stop the loading spinner
       setIsSubmitting(false);
     }
   };
@@ -88,12 +80,20 @@ function CustomerMenu() {
   return (
     <div className="flex flex-col xl:flex-row h-screen w-full bg-gray-50 font-sans text-gray-900 overflow-hidden">
       
+      {/* Checkout Modal Component */}
+      <CheckoutModal 
+        isOpen={showCheckout} 
+        onClose={() => setShowCheckout(false)}
+        onConfirm={handleCheckout}
+        total={total}
+        isSubmitting={isSubmitting}
+      />
+
       <div className="hidden xl:block">
         <Sidebar />
       </div>
 
       <div className="flex-1 flex flex-col h-full overflow-hidden bg-white">
-        
         <header className="bg-white px-4 xl:px-6 py-2 flex justify-between items-center shrink-0 border-b border-gray-100">
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-black text-orange-600 uppercase tracking-tighter">Enbla</h1>
@@ -119,7 +119,6 @@ function CustomerMenu() {
 
         <main className="flex-1 overflow-y-auto p-4 xl:p-6 custom-scrollbar">
           <div className="max-w-6xl mx-auto">
-            
             <div className="mb-3 xl:mb-4">
               <h2 className="text-xl xl:text-3xl font-black tracking-tight leading-tight text-gray-900">{t.title}</h2>
               <p className="text-gray-400 text-[9px] xl:text-[10px] mt-0.5 uppercase tracking-widest font-bold">{t.subtitle}</p>
@@ -186,9 +185,10 @@ function CustomerMenu() {
             <span className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Total</span>
             <span className="text-xl font-black text-gray-900">{total} <small className="text-[10px] font-normal">ETB</small></span>
           </div>
+          {/* CHANGE: Button now opens the Modal instead of calling handleCheckout directly */}
           <button 
             disabled={isSubmitting || cart.length === 0}
-            onClick={handleCheckout}
+            onClick={() => setShowCheckout(true)}
             className={`w-full py-4 bg-orange-600 text-white rounded-xl font-black text-base shadow-lg hover:bg-orange-700 active:scale-95 transition-all ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {isSubmitting ? 'PROCESSING...' : t.checkout}
