@@ -47,12 +47,12 @@ export const useCart = () => {
   // 6. Calculation: Total Price
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-  // 7. FINAL RETURN (Only one return allowed!)
+  // 7. FINAL RETURN 
   return { 
     cart, 
     addToCart, 
     removeFromCart, 
-    clearCart, // Make sure this is exported
+    clearCart, 
     total 
   };
 };
