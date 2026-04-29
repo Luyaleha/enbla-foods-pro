@@ -1,15 +1,23 @@
+// src/App.jsx
 import { Routes, Route } from 'react-router-dom';
 import CustomerMenu from './pages/CustomerMenu';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminGuard from './components/AdminGuard'; // Import the guard
 
 function App() {
   return (
     <Routes>
-      {/* When the URL is localhost:5173/ */}
       <Route path="/" element={<CustomerMenu />} />
-
-      {/* When the URL is localhost:5173/admin */}
-      <Route path="/admin" element={<AdminDashboard />} />
+      
+      {/* WRAP THE ADMIN ROUTE HERE */}
+      <Route 
+        path="/admin" 
+        element={
+          <AdminGuard>
+            <AdminDashboard />
+          </AdminGuard>
+        } 
+      />
     </Routes>
   );
 }

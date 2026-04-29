@@ -15,7 +15,7 @@ function CustomerMenu() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false); // CHANGE 2: Modal visibility state
-  
+  const [orderConfirmed, setOrderConfirmed] = useState(false);
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,33 +41,35 @@ function CustomerMenu() {
 
   // CHANGE 3: Logic now accepts customerData from the Modal
   const handleCheckout = async (customerData) => {
-    if (isSubmitting || cart.length === 0) return;
-    
-    setIsSubmitting(true);
-    try {
-      const orderData = {
-        items: cart,
-        totalAmount: total,
-        customer: customerData, // Attached user info (Name/Phone)
-        status: 'pending',
-        createdAt: serverTimestamp(),
-      };
+  if (isSubmitting || cart.length === 0) return;
+  
+  setIsSubmitting(true);
+  try {
+    const orderData = {
+      items: cart,
+      totalAmount: total,
+      customer: customerData,
+      status: 'pending',
+      createdAt: serverTimestamp(),
+    };
 
-      const docRef = await addDoc(collection(db, "orders"), orderData);
-      
-      if (docRef.id) {
-        setShowCheckout(false); // Close Modal
-        clearCart();
-        setIsCartOpen(false);
-        alert(`Order Successful, ${customerData.name}! We will call you at ${customerData.phone}.`);
-      }
-    } catch (error) {
-      console.error("Order Failed:", error);
-      alert("Failed to place order. Check your internet.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    await addDoc(collection(db, "orders"), orderData);
+    
+    // SUCCESS PATH
+    clearCart();
+    setShowCheckout(false);
+    setOrderConfirmed(true); // <--- Show the success screen
+    
+    // Auto-hide success screen after 5 seconds
+    setTimeout(() => setOrderConfirmed(false), 5000);
+
+  } catch (error) {
+    console.error("Order Failed:", error);
+    alert("Connection lost. Please try again.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const filteredMenu = menuItems.filter(item => {
     const itemCat = item.category ? item.category.toLowerCase() : '';
@@ -179,7 +181,23 @@ function CustomerMenu() {
             </div>
           )}
         </div>
-
+{orderConfirmed && (
+  <div className="fixed inset-0 z-[200] bg-orange-600 flex flex-col items-center justify-center text-white p-6 animate-in fade-in duration-300">
+    <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mb-6 animate-bounce">
+      <span className="text-5xl">✅</span>
+    </div>
+    <h2 className="text-4xl font-black mb-2 text-center uppercase tracking-tighter">Order Received!</h2>
+    <p className="text-orange-100 text-center font-bold max-w-xs mb-8">
+      Your food is being prepared. Check the dashboard to see your status!
+    </p>
+    <button 
+      onClick={() => setOrderConfirmed(false)}
+      className="bg-white text-orange-600 px-8 py-3 rounded-xl font-black uppercase tracking-widest text-sm shadow-xl"
+    >
+      Great, thanks!
+    </button>
+  </div>
+)}
         <div className="p-5 border-t border-gray-100 bg-white shrink-0">
           <div className="flex justify-between items-center mb-4">
             <span className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Total</span>

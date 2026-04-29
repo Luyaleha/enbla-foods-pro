@@ -54,12 +54,18 @@ const CheckoutModal = ({ isOpen, onClose, onConfirm, total, isSubmitting }) => {
               Cancel
             </button>
             <button 
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-[2] py-4 bg-orange-600 text-white font-black rounded-2xl shadow-lg hover:bg-orange-700 transition-all active:scale-95 disabled:opacity-50"
-            >
-              {isSubmitting ? "PROCESSING..." : "CONFIRM ORDER"}
-            </button>
+  type="submit"
+  disabled={isSubmitting} 
+  className={`flex-[2] py-4 bg-orange-600 text-white font-black rounded-2xl shadow-lg transition-all 
+    ${isSubmitting ? 'opacity-50 cursor-not-allowed scale-95' : 'hover:bg-orange-700 active:scale-95'}`}
+>
+  {isSubmitting ? (
+    <span className="flex items-center justify-center gap-2">
+      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+      PROCESSING...
+    </span>
+  ) : "CONFIRM ORDER"}
+</button>
           </div>
         </form>
       </div>
