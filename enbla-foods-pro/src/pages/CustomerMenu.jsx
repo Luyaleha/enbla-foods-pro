@@ -1,12 +1,12 @@
-import { seedDatabase } from './services/seed';
+import { seedDatabase } from '../services/seed';
 import React, { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp } from 'firebase/firestore'; 
-import { db } from './services/firebase'; 
-import Sidebar from './components/Sidebar';
-import FoodCard from './components/FoodCard';
-import { translations } from './translations';
-import { CATEGORIES } from './constants/menuData'; 
-import { useCart } from './hooks/useCart';
+import { db } from '../services/firebase'; 
+import Sidebar from '../components/Sidebar';
+import FoodCard from '../components/FoodCard';
+import { translations } from '../translations';
+import { CATEGORIES } from '../constants/menuData'; 
+import { useCart } from '../hooks/useCart';
 
 function CustomerMenu() {
   const [lang, setLang] = useState('en');
